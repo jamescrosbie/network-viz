@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>System Flow plot</title>
+ 
+    <link rel="stylesheet" media="all" href="{{ url_for('static', filename='css/myStyle.css') }}"> 
+
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.12.4.min.js') }}"></script>
+	<link rel="stylesheet" media="all" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script> 
+
+    <script src="http://d3js.org/d3.v3.min.js"></script> 
+    <script src="http://d3plus.org/js/d3.js"></script>
+    <script src="http://d3plus.org/js/d3plus.js"></script>
+</head>
+
+<body data-spy="scroll" data-target=".navbar" data-offset="50">
+	
+<div class='container-fluid'>
+
+	<header>
+		<h1> System Flows Diagram </h1>
+	</header>	
+
+	<nav class='navbar navbar-inverse' data-spy="affix" data-offset-top="197">
+		<div class='container-fluid'>
+			<a class='navbar-brand' href='#'> NHS England </a>
+			<a class='navbar-brand' href='#'> Analytical Services </a>
+			<ul class='nav navbar-nav navbar-right'>
+				<li> <a href='#' class='active'> System Flow</a></li>
+	        	<li> <a href='#'> Patient Flow      </a></li>
+ 	 		</ul>
+ 	 	</div>	
+ 	</nav>
+
+<h2>
+	The system patient flows diagram shows how patients flow around a
+	health economy.
+</h2>
+
+
+<div class="container-fluid" >
+	<div class='row'> 
+		<div class="col-sm-1 choices">
+			<form class='form-details' method='POST' action='/index' >
+
+                <label>Year:</label><br>
+                <select class='form-dropdown' name='yearSelected' multiple>
+                    {% for year in years %}
+                        <option for='yearSelected' value={{ year }} > {{ year }} </option>
+                    {% endfor %} 		
+                </select>  <br>
+
+                <label>Month:</label><br>
+                <select class='form-dropdown' name="monthSelected" multiple>
+                    {% for month in months %}
+                        <option value={{ month }} > {{ month }} </option>
+                    {% endfor %} 		
+                </select>  <br>
+                
+                <label>Provider:</label><br>
+                <select class='form-dropdown' name="providerSelected"  multiple>
+                    {% for provider in providers %}
+                        <option value={{ provider }} > {{ provider }} </option>
+                    {% endfor %} 		
+                </select>  <br>
+            
+                <label> Commissioner:</label><br>
+                <select class='form-dropdown' name="ccgSelected" multiple>
+                    {% for ccg in commissioners %}
+                        <option value={{ ccg }} > {{ ccg }} </option>
+                    {% endfor %} 		
+                </select>  <br>
+
+                <label>Sex:</label><br>
+                <select class='form-dropdown' name="sexSelected" multiple>
+                    {% for sex in sexs %}
+                        <option value={{ sex }} > {{ sex }} </option>
+                    {% endfor %} 		
+                </select>  <br>
+
+                <label>Age:</label><br>
+                <select class='form-dropdown' name="ageSelected" multiple>
+                    {% for age in ages %}
+                        <option value={{ age }} > {{ age }} </option>
+                    {% endfor %} 		
+                </select>  <br>
+
+                <label>Condition:</label><br>
+                <select class='form-dropdown' name="conditionSelected" multiple>
+                    {% for condition in conditions %}
+                        <option value={{ condition }} > {{ condition }} </option>
+                    {% endfor %} 		
+                </select>  <br> <br>
+                
+                <label> Filter by cost: </label> <br>
+                <b> Min £</b> <input type="number" name="myMin" min={{ formMin }} max= {{ formMax }} value={{ formMin }} style="color:black;width:70px"> <br><br>
+                <b> Max £</b> <input type="number" name="myMax" min={{ formMin }} max= {{ formMax }} value={{ formMax }} style="color:black;width:70px"> <br>
+
+			  <br>
+				<div class='btn-group'>
+					<button class='btn btn-default active' type="submit" value="submit">Plot</button>
+				</div>
+			</form>
+		</div>
+        <div class="col-sm-11">
+            <div id="viz" style='height:830px'></div>
+        </div>
+	</div>      
+</div>
+
+<div>
+    <br></<br>
+    <p>	Click the "Plot" button, shows the the flows for the attributes chosen.</p>
+</div>
+
+    <footer>
+        <span class='text-left' style='float:left'> James Crosbie (2017) </span>
+        <span class='text-center' style='float:center'>Operational Research & Evaluation Unit</span>
+        <span class='text-right' style='float:right'> Analytical Services</span>
+    </footer>
+
+
+
+  <script>
+    var json = JSON.parse(  {{ results | tojson }} );
+        if ( json != {} ){
+            var visualization = d3plus.viz()
+                .container("#viz")
+                .type("network")
+                .data(json.nodes)
+                .tooltip("size")
+        //        .nodes(json.positions)
+                .edges(json.links)
+                .edges({"arrows": true,"size":"flow"})
+                .size("size")
+                .text(json.nodes.name)
+                .id("name")
+                .draw()
+         };   
+    </script>
+
+</body>
+</html>
